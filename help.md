@@ -1,3 +1,3 @@
-[zh-cn](https://github.com/xiaoxinwangluo/android_app_socketfilelistserver/blob/master/help/zh_cn)
+[zh-cn](https://github.com/xiaoxinwangluo/android_app_socketfilelistserver/blob/master/help/zh_cn.md)
 
-[en](https://github.com/xiaoxinwangluo/android_app_socketfilelistserver/blob/master/help/en)
+[en](https://github.com/xiaoxinwangluo/android_app_socketfilelistserver/blob/master/help/en.md)
