@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item
+		android:id="@+id/settingMenu"  
+		android:title="应用设置"
+	/>    
+
+	<item
+		android:id="@+id/copyV4linkMenu"  
+		android:title="复制链接"
+	/>
+
+	<item
+		android:id="@+id/shareV4linkMenu"  
+		android:title="分享链接"
+	/>
+
+	<item
+		android:id="@+id/thisPhoneV4LocalAddresMenu"  
+		android:title="所有本设备局域网地址"
+	/>
+
+
+	<item
+		android:id="@+id/copyV6linkMenu"  
+		android:title="复制IPV6链接"
+	/>
+	<item
+		android:id="@+id/shareV6linkMenu"  
+		android:title="分享IPV6链接"
+	/>
+	<item
+		android:id="@+id/thisPhoneV6LocalAddresMenu"  
+		android:title="所有本设备IPV6局域网地址"
+	/>
+
+
+
+	<item
+		android:id="@+id/clearResMeun"  
+		android:title="重新写入资源包"
+	/>
+
+	<item  
+		android:id="@+id/clearLogMenu"
+		android:title="清空日志"
+	/>    
+	
+	<item
+		android:id="@+id/addAppToBaseDir"
+		android:title="添加本应用到基础目录"
+    />
+
+	<item
+		android:id="@+id/helpMenu"
+		android:title="帮助"
+    />
+</menu>
+

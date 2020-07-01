@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setting_name">设置</string>
+    <string name="app_name">局域网分享</string>
+    <string name="off">关闭</string>
+	<string name="on">开启</string>
+	<string name="status">状态</string>
+	<string name="speed">速度</string>
+	<string name="addres">地址</string>
+	<string name="log">日志</string>
+	<string name="exit">退出</string>
+	<string name="confirm">确定</string>
+	<string name="cancel">取消</string>
+	<string name="delete">删除</string>
+	<string name="config_basedir">基础目录</string>
+	
+	<string name="server_start">启动服务器</string><!-- 启动服务器 -->
+	<string name="server_end">停止服务器</string><!-- 停止服务器 -->
+	<string name="server_exception">服务器异常</string><!-- 服务器异常 -->
+	<string name="write_successful">写入成功</string><!-- 写入成功 -->
+	<string name="copy_successful">复制成功</string><!-- 复制成功 -->
+	<string name="share_link">分享连接</string><!-- 分享连接 -->
+	<string name="file_already_exist">文件已经存在</string><!-- 文件已经存在 -->
+	<string name="no_write_permission">没有写入权限</string><!-- 没有写入权限 -->
+	<string name="shooting">拍摄</string><!-- 拍摄 -->
+	<string name="select_imaeg">选择图片</string><!-- 选择图片 -->
+	<string name="save">保存</string><!-- 保存 -->
+</resources>

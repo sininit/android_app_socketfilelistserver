@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#66CCFF</color>
+    <color name="colorPrimaryDark">#66CCFF</color>
+    <color name="colorAccent">#FF4081</color>
+    
+    <color name="elevation">#dcdcdc</color>
+	<color name="color_layout_bg">#eeeeee</color>
+	<color name="color_text_title">#777777</color>
+    <color name="color_title_bg">#FFFFFF</color>
+	<color name="color_text_value">#424242</color>
+    <color name="color_text_value_pressed">#dcdcdc</color>
+
+</resources>

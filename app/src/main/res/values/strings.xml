@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="setting_name">Setting</string><!-- 设置 -->
+    <string name="app_name">LAN Share</string>
+    <string name="off">Off</string><!-- 关闭 -->
+	<string name="on">On</string><!-- 开启 -->
+	<string name="status">Status</string><!-- 状态 -->
+	<string name="speed">Speed</string><!-- 速度 -->
+	<string name="addres">Addres</string><!-- 地址 -->
+	<string name="log">Log</string><!-- 日志 -->
+    <string name="exit">Exit</string><!-- 退出 -->
+	<string name="confirm">Confirm</string><!-- 确定 -->
+	<string name="cancel">Cancel</string><!-- 取消 -->
+	<string name="delete">Delete</string><!-- 删除 -->
+	<string name="config_basedir">BaseDir</string><!-- 基础目录 -->
+	
+	<string name="server_start">Server Start</string><!-- 启动服务器 -->
+	<string name="server_end">Server Stop</string><!-- 停止服务器 -->
+	<string name="server_exception">Server Exception</string><!-- 服务器异常 -->
+	<string name="write_successful">Write Successful</string><!-- 写入成功 -->
+	<string name="copy_successful">Copy Successful</string><!-- 复制成功 -->
+	<string name="share_link">Share Link</string><!-- 分享连接 -->
+	<string name="file_already_exist">File Already Exist</string><!-- 文件已经存在 -->
+	<string name="no_write_permission">No Write Permission</string><!-- 没有写入权限 -->
+	<string name="shooting">Shooting</string><!-- 拍摄 -->
+	<string name="select_imaeg">Select Image</string><!-- 选择图片 -->
+	<string name="save">Save</string><!-- 保存 -->
+</resources>
