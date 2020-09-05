@@ -43,7 +43,7 @@ public class ZipRes {
 	}
 
 	private String fn(String name) {
-		name = XFile.formatPath(name, pathSplit);
+		name = XFile.getCanonicalRelativePath(name, pathSplit);
 		if(name.length() > 0 && name.charAt(0) == pathSplit)
 			name = name.substring(1, name.length());
 		return name;

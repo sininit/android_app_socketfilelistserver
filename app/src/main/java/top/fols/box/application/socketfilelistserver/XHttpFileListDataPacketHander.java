@@ -1,19 +1,17 @@
 package top.fols.box.application.socketfilelistserver;
-import android.widget.Toast;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import top.fols.aapp.socketfilelistserver.MainActivity;
-import top.fols.aapp.socketfilelistserver.Utils;
-import top.fols.aapp.utils.XUIHandler;
 import top.fols.box.application.httpserver.XHttpServerDataHandlerInterface;
 import top.fols.box.application.httpserver.XHttpServerFileTool;
 import top.fols.box.application.httpserver.XHttpServerHeaderRangeUtils;
@@ -21,22 +19,20 @@ import top.fols.box.application.httpserver.XHttpServerHeaderValue;
 import top.fols.box.application.httpserver.XHttpServerThread;
 import top.fols.box.application.httpserver.XHttpServerTool;
 import top.fols.box.application.httpserver.XHttpServerWriterUtils;
-import top.fols.box.io.XStream;
 import top.fols.box.io.base.XInputStreamFixedLength;
 import top.fols.box.io.base.XInputStreamLine;
 import top.fols.box.io.os.XFile;
 import top.fols.box.io.os.XRandomAccessFileOutputStream;
 import top.fols.box.lang.XString;
 import top.fols.box.net.XURL;
-import top.fols.box.net.XURLConnectionTool;
+import top.fols.box.net.XURLConnectionMessageHeader;
 import top.fols.box.net.XURLParam;
 import top.fols.box.time.XTimeTool;
 import top.fols.box.util.XArrays;
+import top.fols.box.util.XCycleAvgergeSpeedGet;
 import top.fols.box.util.XCycleSpeedLimiter;
 import top.fols.box.util.XObjects;
 import top.fols.box.util.encode.XURLEncoder;
-import top.fols.box.net.XURLConnectionMessageHeader;
-import java.nio.charset.Charset;
 
 public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInterface.Hander {
 	public static final double needRes = 1.0D;
@@ -53,28 +49,66 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 	public static final byte[] errorPrint404NotFound = "404 Not Found".getBytes();
 	public static final byte[] errorPrint416RangeNotSatisfiable = "416 Range Not Satisfiable".getBytes();
 
-	private XCycleSpeedLimiter upload2UserSpeedLimiter = new XCycleSpeedLimiter();//发送数据给客户的限制器 相当于客户下载速度限制
-	private XCycleSpeedLimiter downloadUserDatasSeedLimiter = new XCycleSpeedLimiter();//接收用户下载的文件 相当于上传速度限制
+
+
+
+
+
+	public static class XCycleSpeedLimiters extends XCycleSpeedLimiter {
+		private XCycleAvgergeSpeedGet get = new XCycleAvgergeSpeedGet().setCycle(XTimeTool.time_1s);
+
+		@Override
+		public XCycleSpeedLimiter access() {
+			// TODO: Implement this method
+			XCycleSpeedLimiter origin = super.access();
+			get.access(0);
+			return origin;
+		}
+
+		@Override
+		public XCycleSpeedLimiter access(long p1) throws RuntimeException {
+			// TODO: Implement this method
+			XCycleSpeedLimiter origin = super.access(p1);
+			get.access(p1);
+			return origin;
+		}
+
+		public double getAverageSpeed() {
+			return this.get.getAvgergeValue();
+		}
+
+
+	}
+
+
+
+	private XCycleSpeedLimiters upload2UserSpeedLimiter = new XCycleSpeedLimiters();//发送数据给客户的限制器 相当于客户下载速度限制
+	private XCycleSpeedLimiters downloadUserDatasSeedLimiter = new XCycleSpeedLimiters();//接收用户下载的文件 相当于上传速度限制
 
 	public XHttpFileListDataPacketHander setUpload2UserSpeedLimit(long speed) {
-		this.upload2UserSpeedLimiter.setLimit(speed <=  0 ?false: true);
+		this.upload2UserSpeedLimiter.limit(speed <=  0 ?false: true);
 		this.upload2UserSpeedLimiter.setCycle(XTimeTool.time_1s);
-		this.upload2UserSpeedLimiter.setCycleMaxSpeed(speed <= 0 ?8192: speed);
+		this.upload2UserSpeedLimiter.setCycleAccessMax(speed <= 0 ?8192: speed);
 		return this;
 	}
-	public XCycleSpeedLimiter getUpload2UserSpeedLimit() {
+	public XCycleSpeedLimiters getUpload2UserSpeedLimit() {
 		return this.upload2UserSpeedLimiter;
 	}
 
 	public XHttpFileListDataPacketHander setDownloadUserSpeedLimit(long speed) {
-		this.downloadUserDatasSeedLimiter.setLimit(speed <=  0 ?false: true);
+		this.downloadUserDatasSeedLimiter.limit(speed <=  0 ?false: true);
 		this.downloadUserDatasSeedLimiter.setCycle(XTimeTool.time_1s);
-		this.downloadUserDatasSeedLimiter.setCycleMaxSpeed(speed <= 0 ?1: speed);
+		this.downloadUserDatasSeedLimiter.setCycleAccessMax(speed <= 0 ?1: speed);
 		return this;
 	}
-	public XCycleSpeedLimiter getDownloadUserSpeedLimit() {
+	public XCycleSpeedLimiters getDownloadUserSpeedLimit() {
 		return this.downloadUserDatasSeedLimiter;
 	}
+
+
+
+
+
 
 
 	public ZipRes zr;
@@ -218,15 +252,15 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 			rowfixed.fixed(false);// 取消流长度限制器   不直接获取原流是因为row读取的时候有缓冲,实际原流已经读取的数据不止表面上读的这么点
 
 			XURL xurlNde = new XURL(url);
-			
+
 			/* !download! */ boolean isDownloadFile = url.startsWith(downloadFileUrl);
 			/* !list! */ boolean isList = url.startsWith(listDirUrl) || XURL.PATH_SEPARATOR.equals(xurlNde.getFilePath());
-			
+
 			/* !grow-appd! */boolean isListApp = url.equals(listAppUrl);
 			/* !grow-appd! */boolean isDownloadApp = url.startsWith(downloadAppUrl);
 
 			if (isList) {
-				XURLParam param = null== xurlNde.getParam()?new XURLParam():xurlNde.param();
+				XURLParam param = null == xurlNde.getParam() ?new XURLParam(): xurlNde.param();
 
 				/*
 				 * 判断Url中是否有这个参数
@@ -273,7 +307,7 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 				/* 
 				 **相对路径**
 				 */
-				String absRelativeLocalDirFilePath = XFile.getCanonicalPath(param.get(listDirUrlParamName));
+				String absRelativeLocalDirFilePath = param.get(listDirUrlParamName) == null?null: XFile.getCanonicalRelativePath(param.get(listDirUrlParamName));
 				if (absRelativeLocalDirFilePath == null)
 					absRelativeLocalDirFilePath = XURL.PATH_SEPARATOR;
 				File absListdir = new File(baseDir, absRelativeLocalDirFilePath);//需要列表的目录
@@ -292,7 +326,7 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 
 					sp.w(zr.get("index.part1.html"));
 
-					sp.w("<a href=\"").w(listDirUrl).w(listDirUrlParamName).w(XURL.PARAM_PROJECT_ASSIGNMENT_SYMBOL).w(XURLEncoder.encode(absRelativeLocalDirFilePath,(Charset) null)).w("\">")
+					sp.w("<a href=\"").w(listDirUrl).w(listDirUrlParamName).w(XURL.PARAM_PROJECT_ASSIGNMENT_SYMBOL).w(XURLEncoder.encode(absRelativeLocalDirFilePath, (Charset) null)).w("\">")
 						.w(new XURL(absRelativeLocalDirFilePath.substring(0, absRelativeLocalDirFilePath.lastIndexOf("/"))).getFileName())
 						.w("</a>");
 
@@ -323,7 +357,7 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 
 					sp.w("			<a href=\"").w(absRelativeLocalDirFilePath).w("upload.html\">文件上传</a> &nbsp;&nbsp;&nbsp;&nbsp; ");
 					/* !grow-appd! */	
-					if (getSupportDownloadApp()){
+					if (getSupportDownloadApp()) {
 						sp.w("			<a href=\"").w(listAppUrl).w("\">App下载</a> &nbsp;&nbsp;&nbsp;&nbsp; ");
 					}
 					sp.w("		</div>");
@@ -357,7 +391,7 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 						sp.w("	<li class=\"mdui-list-item mdui-ripple\">");
 						if (isFile) {
 							/* !download! */
-							sp.w("		<a href=\"").w(downloadFileUrl).w(downloadFileUrlParamName).w(XURL.PARAM_PROJECT_ASSIGNMENT_SYMBOL).w(XURLEncoder.encode(relatively.getPath(),(Charset) null))		.w("\">");
+							sp.w("		<a href=\"").w(downloadFileUrl).w(downloadFileUrlParamName).w(XURL.PARAM_PROJECT_ASSIGNMENT_SYMBOL).w(XURLEncoder.encode(relatively.getPath(), (Charset) null))		.w("\">");
 						} else {
 							sp.w("		<a href=\"").w(listDirUrl)		.w(listDirUrlParamName)	 .w(XURL.PARAM_PROJECT_ASSIGNMENT_SYMBOL).w(XURLEncoder.encode(absRelativeLocalDirFilePath, (Charset) null)).w(XURLEncoder.encode(fileName, (Charset) null)).w(PathSplitEncodeChars)
 								/*
@@ -469,7 +503,7 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 					 **相对路径** 
 					 */
 					XURLParam param = xurlNde.param();
-					String relativeDownloadFilePath = XFile.getCanonicalPath((param.get(downloadFileUrlParamName)));
+					String relativeDownloadFilePath = XFile.getCanonicalRelativePath(param.get(downloadFileUrlParamName));
 					File absFile = new File(baseDir, relativeDownloadFilePath);
 					//System.out.println(local);
 
@@ -499,7 +533,7 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 					/* 
 					 **相对路径**
 					 */				
-					String relativeResFilePath = XFile.getCanonicalPath(xurlNde.getFilePath());
+					String relativeResFilePath = XFile.getCanonicalRelativePath(xurlNde.getFilePath());
 					String resFile = relativeResFilePath;
 					boolean resFileExist = zr.exist(resFile) && zr.isFile(resFile);
 					/*
@@ -589,7 +623,7 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 				/* 
 				 **相对路径** 
 				 */
-				String relativeUploadToFilePath = XFile.getCanonicalPath(new File(dir, uploadParamFileName).getAbsolutePath());
+				String relativeUploadToFilePath = XFile.getCanonicalRelativePath(new File(dir, uploadParamFileName).getAbsolutePath());
 				File absUploadFile = new File(baseDir, relativeUploadToFilePath);
 
 //			System.out.println("post file: " + fileName + " ==> " + file);
@@ -641,7 +675,7 @@ public class XHttpFileListDataPacketHander implements XHttpServerDataHandlerInte
 				while (true) {
 					thread.checkInterrupt();
 
-					downloadUserDatasSeedLimiter.waitForFreeLong(b.length);
+					downloadUserDatasSeedLimiter.access(b.length);
 					if ((read = row.read(b)) == -1)
 						break;
 

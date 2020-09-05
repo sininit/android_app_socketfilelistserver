@@ -32,19 +32,19 @@ import top.fols.box.net.XSocket;
 public class XHttpServerThread extends XFixedThreadPool.Run implements XHttpServerHeaderValue {
 
 	@Override
-	public void interrupt() {
-		super.interrupt();
+	public void remove() {
+		// TODO: Implement this method
 		XSocket.tryClose(this.socket);
 	}
 	
-	@Override
+	
 	public boolean checkInterrupt() throws InterruptedException {
 		// TODO: Implement this method
 		if (socket.isClosed())
 			throw new InterruptedException();
 		if (!socket.isConnected())
 			throw new InterruptedException();
-		super.checkInterrupt();
+		super.ensureNoRemove();
 		return false;
 	}
 

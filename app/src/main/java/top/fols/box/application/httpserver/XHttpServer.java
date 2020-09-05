@@ -163,8 +163,8 @@ public class XHttpServer {
 		private boolean executeComplete;
 
 		public SocketWeb(XHttpServer Super, ServerSocket ss, int maxThreadCount) {
-			this.pool = new XFixedThreadPool().setMaxRunningCount(maxThreadCount);
-			this.pool.setMaxRunningCount(Integer.MAX_VALUE);
+			this.pool = new XFixedThreadPool().setMaxRuningCount(maxThreadCount);
+			this.pool.setMaxRuningCount(Integer.MAX_VALUE);
 			this.superobj = XObjects.requireNonNull(Super);
 			this.serversocket = XObjects.requireNonNull(ss);
 			this.superIsStop = new XObject<>(true);
@@ -187,7 +187,7 @@ public class XHttpServer {
 		}
 
 		public int getNowThreadPoolSize() {
-			return this.pool.getNowRunningCount();
+			return this.pool.getNowRuningCount();
 		}
 
 
@@ -201,7 +201,7 @@ public class XHttpServer {
 						if (!isStart()) throw new InterruptedException();
 						sleep(0);
 						
-						if (this.pool.getNowRunningCount() + 1 > this.pool.getMaxRunningCount()) {
+						if (this.pool.getNowRuningCount() + 1 > this.pool.getMaxRuningCount()) {
 							sleep(1);
 							continue;
 						} else {

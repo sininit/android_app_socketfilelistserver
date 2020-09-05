@@ -361,12 +361,12 @@ public class MainActivity extends Activity  implements XUIHandler.MessageDeal {
 
 		long speed;
 		speed = Config.getDownloadUserUploadSpeedLimit();
-		fileListDataHander.getDownloadUserSpeedLimit().setCycleMaxSpeed(speed == -1 ?8192 * 1024: speed);
-		fileListDataHander.getDownloadUserSpeedLimit().setLimit(speed != -1);
+		fileListDataHander.getDownloadUserSpeedLimit().setCycleAccessMax(speed == -1 ?8192 * 1024: speed);
+		fileListDataHander.getDownloadUserSpeedLimit().limit(speed != -1);
 
 		speed = Config.getUploadDataToSpeedLimit();
-		fileListDataHander.getUpload2UserSpeedLimit().setCycleMaxSpeed(speed == -1 ?8192 * 1024: speed);
-		fileListDataHander.getUpload2UserSpeedLimit().setLimit(speed != -1);
+		fileListDataHander.getUpload2UserSpeedLimit().setCycleAccessMax(speed == -1 ?8192 * 1024: speed);
+		fileListDataHander.getUpload2UserSpeedLimit().limit(speed != -1);
 
 		fileListDataHander.setSupportKeepAlive(false);
 
@@ -500,7 +500,7 @@ public class MainActivity extends Activity  implements XUIHandler.MessageDeal {
 							sb.append(new XFile(ps.getLogFile()).toString());
 						} else {
 							try {
-								sb.append(new String(XFile.getBytes(ps.getLogFile(), 0,(int)(1L * 1024L * 1024L))));
+								sb.append(new String(XFile.readFile(ps.getLogFile(), 0,(int)(1L * 1024L * 1024L))));
 							} catch (Throwable e) {
 								sb.append("load log file error." + "\n" + XExceptionTool.StackTraceToString(e));
 							}

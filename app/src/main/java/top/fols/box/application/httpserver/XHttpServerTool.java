@@ -107,7 +107,7 @@ public class XHttpServerTool {
 		long length = 0;
 		while (true) {
 			if(limiter != null)
-				limiter.waitForFreeLong(buff.length);
+				limiter.access(buff.length);
 			if ((read = in.read(buff)) == -1)
 				break;
 			length += read;
@@ -129,7 +129,7 @@ public class XHttpServerTool {
 		long length = 0;
 		while (true) {
 			if(limiter != null)
-				limiter.waitForFreeLong(buff.length);
+				limiter.access(buff.length);
 			if ((read = in.read(buff)) == -1)
 				break;
 			length += read;
