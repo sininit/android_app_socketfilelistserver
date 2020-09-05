@@ -1,6 +1,0 @@
-# view AndroidManifest.xml #generated:52
--keep class top.fols.aapp.socketfilelistserver.MainActivity { <init>(...); }
-
-# view AndroidManifest.xml #generated:49
--keep class top.fols.aapp.socketfilelistserver.SettingActivity { <init>(...); }
-
